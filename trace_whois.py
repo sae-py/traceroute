@@ -1,5 +1,7 @@
 import sys
 import socket
+from ipwhois import IPWhois
+from ipwhois.ipwhois import IPDefinedError
 
 def traceroute(dest_name, port, max_hops):
     dest_addr = socket.gethostbyname(dest_name)
@@ -32,6 +34,18 @@ def traceroute(dest_name, port, max_hops):
 
         if curr_addr is not None:
             print("{0} {1}({2})".format(ttl,curr_name,curr_addr))
+
+            try:
+                obj = IPWhois(curr_addr)
+            except IPDefinedError as e:
+                print("local host")
+            else:
+                who = obj.lookup()
+                nets = who['nets']
+                country = nets[0]['country']
+                company = nets[0]['description']
+                print("country：{0} company：{1}\n".format(country,company))
+
         else:
             print("{} *".format(ttl))
 
